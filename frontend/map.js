@@ -451,76 +451,6 @@ function hideHoverTip() {
   document.getElementById('hoverTip').style.display = 'none';
 }
 
-// ─── Per-cell land cover trend (stacked area) ────────────────
-function cellTimeSeriesSVG(p) {
-  const W = 268, H = 86, PAD_L = 4, PAD_R = 4, PAD_T = 4, PAD_B = 16;
-  const cw = W - PAD_L - PAD_R, ch = H - PAD_T - PAD_B;
-  const xStep = cw / (YEARS.length - 1);
-
-  const values = YEARS.map(y => ({
-    year: y,
-    built: (p[`built_${y}`] || 0) * 100,
-    bare:  (p[`bare_${y}`]  || 0) * 100,
-    water: (p[`water_${y}`] || 0) * 100,
-    veg:   (p[`veg_${y}`]   || 0) * 100,
-  }));
-
-  const cats = [
-    { key: 'built', col: '#c0392b' },
-    { key: 'bare',  col: '#e67e22' },
-    { key: 'water', col: '#2980b9' },
-    { key: 'veg',   col: '#27ae60' },
-  ];
-
-  let polys = '';
-  let prevTops = values.map(() => 0);
-  cats.forEach(({ key, col }) => {
-    const tops = values.map((v, i) => prevTops[i] + v[key]);
-    const path = [];
-    values.forEach((v, i) => {
-      const x = PAD_L + i * xStep;
-      const y = PAD_T + ch * (1 - tops[i] / 100);
-      path.push(`${x},${y}`);
-    });
-    for (let i = values.length - 1; i >= 0; i--) {
-      const x = PAD_L + i * xStep;
-      const y = PAD_T + ch * (1 - prevTops[i] / 100);
-      path.push(`${x},${y}`);
-    }
-    polys += `<polygon points="${path.join(' ')}" fill="${col}" opacity="0.88"/>`;
-    prevTops = tops;
-  });
-
-  let xAxis = '';
-  YEARS.forEach((y, i) => {
-    if (i % 2 === 0 || i === YEARS.length - 1) {
-      const x = PAD_L + i * xStep;
-      xAxis += `<text x="${x}" y="${H - 3}" text-anchor="middle"
-                 style="fill:var(--gray-500);font-size:9px;font-family:'Segoe UI',sans-serif;font-weight:600">${y}</text>`;
-    }
-  });
-
-  const curIdx = YEARS.indexOf(App.currentYear);
-  const curX = PAD_L + curIdx * xStep;
-  const yearMarker = `
-    <line x1="${curX}" x2="${curX}" y1="${PAD_T}" y2="${PAD_T+ch}"
-          stroke="#0f2557" stroke-width="1.5" stroke-dasharray="3,2"/>
-    <circle cx="${curX}" cy="${PAD_T - 1}" r="3" fill="#0f2557"/>`;
-
-  // Compute net deltas for context
-  const dBuilt = values[values.length-1].built - values[0].built;
-  const dVeg   = values[values.length-1].veg   - values[0].veg;
-
-  return `
-    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;display:block;border-radius:6px;overflow:hidden">
-      ${polys}${yearMarker}${xAxis}
-    </svg>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray-500);margin-top:4px">
-      <span>Built <b style="color:${dBuilt>=0?'var(--red)':'var(--green)'}">${dBuilt>=0?'+':''}${dBuilt.toFixed(1)}pp</b></span>
-      <span>Veg <b style="color:${dVeg>=0?'var(--green)':'var(--red)'}">${dVeg>=0?'+':''}${dVeg.toFixed(1)}pp</b></span>
-    </div>`;
-}
-
 // ─── Right info panel ─────────────────────────────────────────
 function showInfoPanel(p) {
   App.currentCellProps = p;
@@ -587,11 +517,6 @@ function showInfoPanel(p) {
         <div class="lc-item"><div class="lc-dot2" style="background:#2980b9"></div>Water ${water.toFixed(1)}%</div>
         <div class="lc-item"><div class="lc-dot2" style="background:#e67e22"></div>Bare ${bare.toFixed(1)}%</div>
       </div>
-    </div>
-
-    <div class="info-section">
-      <div class="info-section-title"><i class="bi bi-activity"></i> Land Cover Trend 2018–2026</div>
-      ${cellTimeSeriesSVG(p)}
     </div>
 
     <div class="info-section">
