@@ -21,8 +21,12 @@ const TransparentImageLayer = L.ImageOverlay.extend({
       try {
         const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d  = id.data;
+        const bgR = d[0], bgG = d[1], bgB = d[2];
+        const TOL = 10;
         for (let i = 0; i < d.length; i += 4) {
-          if (d[i] < 10 && d[i+1] < 10 && d[i+2] < 10) d[i+3] = 0;
+          if (Math.abs(d[i] - bgR) < TOL &&
+              Math.abs(d[i+1] - bgG) < TOL &&
+              Math.abs(d[i+2] - bgB) < TOL) d[i+3] = 0;
         }
         ctx.putImageData(id, 0, 0);
       } catch (e) { /* CORS fallback — keep image as-is */ }
