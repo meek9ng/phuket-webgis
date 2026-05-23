@@ -1,0 +1,6 @@
+category,count,cells_with_poi,cells_total,coverage_pct,mean_per_cell,max_per_cell,mean_dist_m
+medical,309,3226,9644,33.45,1.5,48,2320.8
+recreation,781,6735,9644,69.84,3.69,36,856.5
+living,3769,6920,9644,71.75,18.25,456,860.7
+transport,266,3843,9644,39.85,1.28,22,1863.2
+education,114,2915,9644,30.23,0.58,10,2078.4

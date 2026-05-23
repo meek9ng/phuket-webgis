@@ -1,0 +1,31 @@
+{
+  "study_area": "Phuket Province (3 districts)",
+  "years": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "total_cells": 9644,
+  "total_area_km2": 602.8,
+  "total_pois": 244016,
+  "total_main_roads": 806,
+  "total_minor_roads": 12774,
+  "mean_livability": 60.91,
+  "median_livability": 60.5,
+  "mean_gini_simpson": 0.3726,
+  "mean_poi_density": 8.05,
+  "risk_cells": 350,
+  "uhi_hotspot_cells": 380,
+  "high_diversity_cells": 1094,
+  "pois_medical": 14503,
+  "pois_recreation": 35551,
+  "pois_living": 175992,
+  "pois_transport": 12356,
+  "pois_education": 5614
+}
