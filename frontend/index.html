@@ -38,7 +38,10 @@
 <!-- ───────────────── LEFT PANEL ───────────────── -->
 <div id="panel">
   <div class="panel-header">
-    <button id="langToggle" class="lang-toggle-btn" data-i18n-title="nav.toggle_lang" title="Switch language">TH</button>
+    <button id="langToggle" class="lang-toggle-btn" data-i18n-title="nav.toggle_lang" title="Switch language" aria-label="Switch language">
+      <span class="lang-opt" data-l="en">EN</span>
+      <span class="lang-opt" data-l="th">TH</span>
+    </button>
     <button id="mapThemeToggle" class="theme-toggle-btn" data-i18n-title="nav.toggle_theme" title="Toggle light / dark theme">
       <i class="bi bi-sun-fill"></i>
     </button>

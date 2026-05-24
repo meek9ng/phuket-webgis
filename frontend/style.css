@@ -202,8 +202,7 @@ html, body {
 
 /* Header icon buttons */
 .theme-toggle-btn,
-.home-link,
-.lang-toggle-btn {
+.home-link {
   position: absolute;
   top: 14px;
   width: 28px; height: 28px;
@@ -213,19 +212,55 @@ html, body {
   display: flex; align-items: center; justify-content: center;
   color: var(--t3);
   text-decoration: none;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .02em;
+  font-size: 12px;
   cursor: pointer;
   padding: 0;
   transition: all .15s;
 }
-.lang-toggle-btn  { right: 86px; }
 .theme-toggle-btn { right: 50px; }
 .home-link        { right: 14px; }
 .theme-toggle-btn:hover,
-.home-link:hover,
-.lang-toggle-btn:hover  { background: var(--surface); color: var(--t1); }
+.home-link:hover { background: var(--surface); color: var(--t1); }
+
+/* Segmented language toggle — matches theme's sand-deep accent */
+.lang-toggle-btn {
+  position: absolute;
+  top: 14px;
+  right: 86px;
+  height: 28px;
+  padding: 2px;
+  border: .5px solid var(--sep);
+  background: var(--surface-2);
+  border-radius: 999px;
+  display: inline-flex; align-items: center;
+  gap: 0;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, border-color .15s;
+}
+.lang-toggle-btn:hover { background: var(--surface); }
+.lang-toggle-btn .lang-opt {
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--t4);
+  border-radius: 999px;
+  transition: color .2s ease, background .2s ease;
+  pointer-events: none;
+}
+.lang-toggle-btn[data-lang="en"] .lang-opt[data-l="en"],
+.lang-toggle-btn[data-lang="th"] .lang-opt[data-l="th"] {
+  color: var(--white, #fff);
+  background: var(--sand-deep);
+}
+body[data-theme="dark"] .lang-toggle-btn[data-lang="en"] .lang-opt[data-l="en"],
+body[data-theme="dark"] .lang-toggle-btn[data-lang="th"] .lang-opt[data-l="th"] {
+  color: #1d1d1f;
+}
 .theme-toggle-btn i { transition: transform .4s ease; }
 body[data-theme="dark"] .theme-toggle-btn i { transform: rotate(180deg); }
 

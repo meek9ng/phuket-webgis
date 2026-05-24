@@ -448,7 +448,13 @@ const I18N = {
     });
 
     document.querySelectorAll('.lang-toggle-btn').forEach(b => {
-      b.textContent = (lang === 'th') ? 'EN' : 'TH';
+      if (b.querySelector('.lang-opt')) {
+        // Segmented control: highlight the active language via [data-lang].
+        b.dataset.lang = lang;
+      } else {
+        // Plain text fallback (older markup): show the opposite language as the click target.
+        b.textContent = (lang === 'th') ? 'EN' : 'TH';
+      }
     });
 
     document.dispatchEvent(new CustomEvent('langchange', { detail: lang }));
