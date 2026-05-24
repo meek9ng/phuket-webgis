@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body>
@@ -38,18 +38,24 @@
 <!-- ───────────────── LEFT PANEL ───────────────── -->
 <div id="panel">
   <div class="panel-header">
-    <button id="langToggle" class="lang-toggle-btn" data-lang="en" data-i18n-title="nav.toggle_lang" title="Switch language" aria-label="Switch language">
-      <span class="lang-opt" data-l="en">EN</span>
-      <span class="lang-opt" data-l="th">TH</span>
-    </button>
-    <button id="mapThemeToggle" class="theme-toggle-btn" data-i18n-title="nav.toggle_theme" title="Toggle light / dark theme">
-      <i class="bi bi-sun-fill"></i>
-    </button>
-    <a href="home.html" class="home-link" data-i18n-title="nav.back_home" title="Back to home">
-      <i class="bi bi-house-fill"></i>
-    </a>
-    <h1><span class="logo-mark"></span>Phuket <em>WebGIS</em></h1>
-    <p data-i18n="panel.subtitle">Land use &amp; livability · 2018 / 2026</p>
+    <div class="panel-header-top">
+      <h1><span class="logo-mark"></span>Phuket <em>WebGIS</em></h1>
+      <div class="panel-header-actions">
+        <button id="mapThemeToggle" class="theme-toggle-btn" data-i18n-title="nav.toggle_theme" title="Toggle light / dark theme">
+          <i class="bi bi-sun-fill"></i>
+        </button>
+        <a href="home.html" class="home-link" data-i18n-title="nav.back_home" title="Back to home">
+          <i class="bi bi-house-fill"></i>
+        </a>
+      </div>
+    </div>
+    <div class="panel-header-bottom">
+      <p data-i18n="panel.subtitle">Land use &amp; livability · 2018 / 2026</p>
+      <button id="langToggle" class="lang-toggle-btn" data-lang="en" data-i18n-title="nav.toggle_lang" title="Switch language" aria-label="Switch language">
+        <span class="lang-opt" data-l="en">EN</span>
+        <span class="lang-opt" data-l="th">TH</span>
+      </button>
+    </div>
   </div>
 
   <div class="tabs">
@@ -307,9 +313,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
-<script src="i18n.js?v=2"></script>
-<script src="map.js?v=2"></script>
-<script src="charts.js?v=2"></script>
+<script src="i18n.js?v=3"></script>
+<script src="map.js?v=3"></script>
+<script src="charts.js?v=3"></script>
 <script>
   I18N.init();
   document.getElementById('langToggle').addEventListener('click', () => I18N.toggle());
