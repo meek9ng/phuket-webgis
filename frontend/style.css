@@ -202,7 +202,8 @@ html, body {
 
 /* Header icon buttons */
 .theme-toggle-btn,
-.home-link {
+.home-link,
+.lang-toggle-btn {
   position: absolute;
   top: 14px;
   width: 28px; height: 28px;
@@ -212,15 +213,19 @@ html, body {
   display: flex; align-items: center; justify-content: center;
   color: var(--t3);
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
   cursor: pointer;
   padding: 0;
   transition: all .15s;
 }
+.lang-toggle-btn  { right: 86px; }
 .theme-toggle-btn { right: 50px; }
 .home-link        { right: 14px; }
 .theme-toggle-btn:hover,
-.home-link:hover  { background: var(--surface); color: var(--t1); }
+.home-link:hover,
+.lang-toggle-btn:hover  { background: var(--surface); color: var(--t1); }
 .theme-toggle-btn i { transition: transform .4s ease; }
 body[data-theme="dark"] .theme-toggle-btn i { transform: rotate(180deg); }
 

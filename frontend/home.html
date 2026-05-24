@@ -16,16 +16,17 @@
     Phuket <em>WebGIS</em>
   </a>
   <div class="nav-links">
-    <a href="#about" class="nav-link">01 About</a>
-    <a href="#features" class="nav-link">02 Features</a>
-    <a href="#materials" class="nav-link">03 Materials</a>
-    <a href="#workflow" class="nav-link">04 Workflow</a>
+    <a href="#about" class="nav-link" data-i18n="nav.about">01 About</a>
+    <a href="#features" class="nav-link" data-i18n="nav.features">02 Features</a>
+    <a href="#materials" class="nav-link" data-i18n="nav.materials">03 Materials</a>
+    <a href="#workflow" class="nav-link" data-i18n="nav.workflow">04 Workflow</a>
     <span class="nav-divider"></span>
-    <button id="navThemeToggle" class="nav-theme-toggle" title="Toggle light / dark theme">
+    <button id="langToggle" class="lang-toggle-btn" data-i18n-title="nav.toggle_lang" title="Switch language">TH</button>
+    <button id="navThemeToggle" class="nav-theme-toggle" data-i18n-title="nav.toggle_theme" title="Toggle light / dark theme">
       <i class="bi bi-sun-fill nav-theme-icon"></i>
     </button>
     <a href="index.html" class="nav-cta">
-      Open Map <i class="bi bi-arrow-up-right"></i>
+      <span data-i18n="nav.open_map">Open Map</span> <i class="bi bi-arrow-up-right"></i>
     </a>
   </div>
 </nav>
@@ -34,7 +35,7 @@
      HERO
      ═══════════════════════════════════════════════════════ -->
 <section class="hero" id="hero" data-theme="light">
-  <button id="themeToggle" title="Toggle light / dark mode">
+  <button id="themeToggle" data-i18n-title="nav.toggle_theme" title="Toggle light / dark mode">
     <i class="bi bi-sun-fill toggle-icon"></i>
   </button>
 
@@ -51,15 +52,15 @@
   <div class="hero-inner">
     <div class="hero-meta reveal">
       <span class="hero-meta-rule"></span>
-      <span>Phuket Province — Thailand · 2018 / 2026</span>
+      <span data-i18n="hero.meta">Phuket Province — Thailand · 2018 / 2026</span>
     </div>
-    <h1 class="reveal">Phuket<br><em>WebGIS.</em></h1>
-    <p class="hero-lead reveal">An editorial study of land&nbsp;use and livability — built from nine years of Sentinel-2 imagery, 244 016 OpenStreetMap points, and a 250 m analysis grid.</p>
+    <h1 class="reveal"><span data-i18n="hero.title_a">Phuket</span><br><em data-i18n="hero.title_b">WebGIS.</em></h1>
+    <p class="hero-lead reveal" data-i18n="hero.lead">An editorial study of land&nbsp;use and livability — built from nine years of Sentinel-2 imagery, 244 016 OpenStreetMap points, and a 250 m analysis grid.</p>
     <div class="hero-actions reveal">
       <a href="index.html" class="btn btn-primary">
-        Launch the map <i class="bi bi-arrow-up-right"></i>
+        <span data-i18n="hero.cta_launch">Launch the map</span> <i class="bi bi-arrow-up-right"></i>
       </a>
-      <a href="#about" class="btn-arrow">Scroll to read</a>
+      <a href="#about" class="btn-arrow" data-i18n="hero.cta_scroll">Scroll to read</a>
     </div>
   </div>
 </section>
@@ -92,34 +93,34 @@
 <section class="block" id="about">
   <div class="section-head reveal">
     <div>
-      <div class="section-num"><span>01</span><span>About</span></div>
-      <h2>An island,<br><em>observed</em> at 250 m resolution.</h2>
+      <div class="section-num"><span>01</span><span data-i18n="about.kicker">About</span></div>
+      <h2><span data-i18n="about.title_a">An island,</span><br><em data-i18n="about.title_b">observed at 250 m resolution.</em></h2>
     </div>
-    <p class="lead">A 543 km² island province on Thailand's southwest Andaman coast, made up of three districts and home to one of Southeast Asia's most active tourism economies.</p>
+    <p class="lead" data-i18n="about.lead">A 543 km² island province on Thailand's southwest Andaman coast, made up of three districts and home to one of Southeast Asia's most active tourism economies.</p>
   </div>
 
   <div class="phuket-grid">
     <div class="phuket-text reveal">
-      <p>Phuket sits in the Andaman Sea, connected to mainland Thailand by the Sarasin Bridge. Its three districts — <b>Mueang Phuket</b>, <b>Kathu</b>, and <b>Thalang</b> — host beaches, dense urban centres, mountainous interior forest, and rapidly expanding peri-urban zones.</p>
-      <p>Since 2010, Phuket has experienced explosive urbanization driven by tourism, second-home development, and infrastructure investment. This has transformed the land cover, increased urban-heat-island pressure, and reshaped accessibility to public services.</p>
-      <p>This WebGIS provides a transparent, data-driven view of <b>where</b> change is happening, <b>how fast</b>, and <b>how it affects livability</b> — across every 250 m × 250 m cell of the island, every year from 2018 through 2026.</p>
+      <p data-i18n-html="about.p1_html">Phuket sits in the Andaman Sea, connected to mainland Thailand by the Sarasin Bridge. Its three districts — <b>Mueang Phuket</b>, <b>Kathu</b>, and <b>Thalang</b> — host beaches, dense urban centres, mountainous interior forest, and rapidly expanding peri-urban zones.</p>
+      <p data-i18n-html="about.p2_html">Since 2010, Phuket has experienced explosive urbanization driven by tourism, second-home development, and infrastructure investment. This has transformed the land cover, increased urban-heat-island pressure, and reshaped accessibility to public services.</p>
+      <p data-i18n-html="about.p3_html">This WebGIS provides a transparent, data-driven view of <b>where</b> change is happening, <b>how fast</b>, and <b>how it affects livability</b> — across every 250 m × 250 m cell of the island, every year from 2018 through 2026.</p>
     </div>
     <div class="phuket-stats reveal-stagger">
-      <div class="pstat"><i class="bi bi-bounding-box"></i><div class="pstat-val">543</div><div class="pstat-lbl">km² area</div></div>
-      <div class="pstat"><i class="bi bi-people"></i><div class="pstat-val">~410k</div><div class="pstat-lbl">population</div></div>
-      <div class="pstat"><i class="bi bi-buildings"></i><div class="pstat-val">3</div><div class="pstat-lbl">districts</div></div>
-      <div class="pstat"><i class="bi bi-airplane"></i><div class="pstat-val">14M+</div><div class="pstat-lbl">visitors / yr</div></div>
-      <div class="pstat"><i class="bi bi-grid-3x3-gap"></i><div class="pstat-val">9 644</div><div class="pstat-lbl">grid cells</div></div>
-      <div class="pstat"><i class="bi bi-calendar3"></i><div class="pstat-val">9</div><div class="pstat-lbl">years observed</div></div>
+      <div class="pstat"><i class="bi bi-bounding-box"></i><div class="pstat-val">543</div><div class="pstat-lbl" data-i18n="about.stat_area">km² area</div></div>
+      <div class="pstat"><i class="bi bi-people"></i><div class="pstat-val">~410k</div><div class="pstat-lbl" data-i18n="about.stat_pop">population</div></div>
+      <div class="pstat"><i class="bi bi-buildings"></i><div class="pstat-val">3</div><div class="pstat-lbl" data-i18n="about.stat_districts">districts</div></div>
+      <div class="pstat"><i class="bi bi-airplane"></i><div class="pstat-val">14M+</div><div class="pstat-lbl" data-i18n="about.stat_visitors">visitors / yr</div></div>
+      <div class="pstat"><i class="bi bi-grid-3x3-gap"></i><div class="pstat-val">9 644</div><div class="pstat-lbl" data-i18n="about.stat_cells">grid cells</div></div>
+      <div class="pstat"><i class="bi bi-calendar3"></i><div class="pstat-val">9</div><div class="pstat-lbl" data-i18n="about.stat_years">years observed</div></div>
     </div>
   </div>
 </section>
 
 <!-- ── Big number ──────────────────────────────────── -->
 <section class="bignum">
-  <div class="bignum-cap-top reveal">Study area</div>
+  <div class="bignum-cap-top reveal" data-i18n="bignum1.cap_top">Study area</div>
   <div class="bignum-display reveal">543<span class="unit">KM²</span></div>
-  <div class="bignum-cap reveal">Phuket Province · three districts · monitored continuously across nine years</div>
+  <div class="bignum-cap reveal" data-i18n="bignum1.cap">Phuket Province · three districts · monitored continuously across nine years</div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -128,57 +129,57 @@
 <section class="block alt" id="features">
   <div class="section-head reveal">
     <div>
-      <div class="section-num"><span>02</span><span>Features</span></div>
-      <h2>Six lenses on a<br><em>changing</em> island.</h2>
+      <div class="section-num"><span>02</span><span data-i18n="features.kicker">Features</span></div>
+      <h2><span data-i18n="features.title_a">Six lenses on a</span><br><em data-i18n="features.title_b">changing island.</em></h2>
     </div>
-    <p class="lead">Switch basemaps, animate land-cover change year-by-year, click any grid cell to see its full profile, and discover hotspots and risk zones at a glance.</p>
+    <p class="lead" data-i18n="features.lead">Switch basemaps, animate land-cover change year-by-year, click any grid cell to see its full profile, and discover hotspots and risk zones at a glance.</p>
   </div>
 
   <div class="feature-grid reveal-stagger">
     <div class="feature">
       <div class="feature-num">— I</div>
       <i class="bi bi-camera"></i>
-      <h3>Time-lapse imagery</h3>
-      <p>Sentinel-2 true-color and classified land-cover overlays for every year from 2018 to 2026, with smooth opacity blending.</p>
+      <h3 data-i18n="features.f1_title">Time-lapse imagery</h3>
+      <p data-i18n="features.f1_body">Sentinel-2 true-color and classified land-cover overlays for every year from 2018 to 2026, with smooth opacity blending.</p>
     </div>
     <div class="feature">
       <div class="feature-num">— II</div>
       <i class="bi bi-grid-3x3"></i>
-      <h3>250 m analysis grid</h3>
-      <p>9 644 cells, colour-coded on demand by livability, growth, density, urban-heat-island proxy, or NDVI.</p>
+      <h3 data-i18n="features.f2_title">250 m analysis grid</h3>
+      <p data-i18n="features.f2_body">9 644 cells, colour-coded on demand by livability, growth, density, urban-heat-island proxy, or NDVI.</p>
     </div>
     <div class="feature">
       <div class="feature-num">— III</div>
       <i class="bi bi-geo-alt"></i>
-      <h3>244 016 POIs</h3>
-      <p>Medical, recreation, living, transport, and education facilities — clustered, filterable by category, mapped to every cell.</p>
+      <h3 data-i18n="features.f3_title">244 016 POIs</h3>
+      <p data-i18n="features.f3_body">Medical, recreation, living, transport, and education facilities — clustered, filterable by category, mapped to every cell.</p>
     </div>
     <div class="feature">
       <div class="feature-num">— IV</div>
       <i class="bi bi-bar-chart"></i>
-      <h3>Live statistics</h3>
-      <p>Inline SVG charts for land-cover composition, built-up trend, accessibility deciles, and POI density distributions.</p>
+      <h3 data-i18n="features.f4_title">Live statistics</h3>
+      <p data-i18n="features.f4_body">Inline SVG charts for land-cover composition, built-up trend, accessibility deciles, and POI density distributions.</p>
     </div>
     <div class="feature">
       <div class="feature-num">— V</div>
       <i class="bi bi-trophy"></i>
-      <h3>Hotspot navigator</h3>
-      <p>Top livability cells, fastest-growing cells, and risk cells — one click flies you straight to the location.</p>
+      <h3 data-i18n="features.f5_title">Hotspot navigator</h3>
+      <p data-i18n="features.f5_body">Top livability cells, fastest-growing cells, and risk cells — one click flies you straight to the location.</p>
     </div>
     <div class="feature">
       <div class="feature-num">— VI</div>
       <i class="bi bi-activity"></i>
-      <h3>Per-cell trends</h3>
-      <p>Click any cell to see its land-cover composition evolve across all nine years as a stacked area chart.</p>
+      <h3 data-i18n="features.f6_title">Per-cell trends</h3>
+      <p data-i18n="features.f6_body">Click any cell to see its land-cover composition evolve across all nine years as a stacked area chart.</p>
     </div>
   </div>
 </section>
 
 <!-- ── Big number ──────────────────────────────────── -->
 <section class="bignum">
-  <div class="bignum-cap-top reveal">Resolution</div>
+  <div class="bignum-cap-top reveal" data-i18n="bignum2.cap_top">Resolution</div>
   <div class="bignum-display reveal">9<em>,</em>644<span class="unit">CELLS</span></div>
-  <div class="bignum-cap reveal">250 m × 250 m fishnet · zonal statistics computed for every year of the study</div>
+  <div class="bignum-cap reveal" data-i18n="bignum2.cap">250 m × 250 m fishnet · zonal statistics computed for every year of the study</div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -187,10 +188,10 @@
 <section class="block" id="materials">
   <div class="section-head reveal">
     <div>
-      <div class="section-num"><span>03</span><span>Materials</span></div>
-      <h2>Tools &amp; data<br>behind the <em>map.</em></h2>
+      <div class="section-num"><span>03</span><span data-i18n="materials.kicker">Materials</span></div>
+      <h2><span data-i18n="materials.title_a">Tools &amp; data</span><br><span data-i18n="materials.title_b">behind the map.</span></h2>
     </div>
-    <p class="lead">Everything used to build this WebGIS — from satellite imagery acquisition to the final interactive frontend.</p>
+    <p class="lead" data-i18n="materials.lead">Everything used to build this WebGIS — from satellite imagery acquisition to the final interactive frontend.</p>
   </div>
 
   <div class="material-grid reveal-stagger">
@@ -198,8 +199,8 @@
       <div class="mat-head">
         <div class="mat-num">i</div>
         <div class="mat-title-block">
-          <div class="mat-sub">Stage 01</div>
-          <div class="mat-title">Software &amp; editors</div>
+          <div class="mat-sub" data-i18n="materials.m1_sub">Stage 01</div>
+          <div class="mat-title" data-i18n="materials.m1_title">Software &amp; editors</div>
         </div>
       </div>
       <ul>
@@ -215,8 +216,8 @@
       <div class="mat-head">
         <div class="mat-num">ii</div>
         <div class="mat-title-block">
-          <div class="mat-sub">Stage 02</div>
-          <div class="mat-title">Python libraries</div>
+          <div class="mat-sub" data-i18n="materials.m2_sub">Stage 02</div>
+          <div class="mat-title" data-i18n="materials.m2_title">Python libraries</div>
         </div>
       </div>
       <ul>
@@ -233,8 +234,8 @@
       <div class="mat-head">
         <div class="mat-num">iii</div>
         <div class="mat-title-block">
-          <div class="mat-sub">Stage 03</div>
-          <div class="mat-title">Web frontend</div>
+          <div class="mat-sub" data-i18n="materials.m3_sub">Stage 03</div>
+          <div class="mat-title" data-i18n="materials.m3_title">Web frontend</div>
         </div>
       </div>
       <ul>
@@ -250,8 +251,8 @@
       <div class="mat-head">
         <div class="mat-num">iv</div>
         <div class="mat-title-block">
-          <div class="mat-sub">Stage 04</div>
-          <div class="mat-title">Source data</div>
+          <div class="mat-sub" data-i18n="materials.m4_sub">Stage 04</div>
+          <div class="mat-title" data-i18n="materials.m4_title">Source data</div>
         </div>
       </div>
       <ul>
@@ -266,8 +267,8 @@
       <div class="mat-head">
         <div class="mat-num">v</div>
         <div class="mat-title-block">
-          <div class="mat-sub">Stage 05</div>
-          <div class="mat-title">Derived data</div>
+          <div class="mat-sub" data-i18n="materials.m5_sub">Stage 05</div>
+          <div class="mat-title" data-i18n="materials.m5_title">Derived data</div>
         </div>
       </div>
       <ul>
@@ -282,8 +283,8 @@
       <div class="mat-head">
         <div class="mat-num">vi</div>
         <div class="mat-title-block">
-          <div class="mat-sub">Hardware</div>
-          <div class="mat-title">Compute</div>
+          <div class="mat-sub" data-i18n="materials.m6_sub">Hardware</div>
+          <div class="mat-title" data-i18n="materials.m6_title">Compute</div>
         </div>
       </div>
       <ul>
@@ -298,9 +299,9 @@
 
 <!-- ── Big number ──────────────────────────────────── -->
 <section class="bignum">
-  <div class="bignum-cap-top reveal">Coverage</div>
+  <div class="bignum-cap-top reveal" data-i18n="bignum3.cap_top">Coverage</div>
   <div class="bignum-display reveal">244<em>,</em>016<span class="unit">POIs</span></div>
-  <div class="bignum-cap reveal">Medical · Recreation · Living · Transport · Education — sourced from OpenStreetMap</div>
+  <div class="bignum-cap reveal" data-i18n="bignum3.cap">Medical · Recreation · Living · Transport · Education — sourced from OpenStreetMap</div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -309,10 +310,10 @@
 <section class="block alt" id="workflow">
   <div class="section-head reveal">
     <div>
-      <div class="section-num"><span>04</span><span>Workflow</span></div>
-      <h2>Nine steps,<br>raw pixels<br>to live <em>map.</em></h2>
+      <div class="section-num"><span>04</span><span data-i18n="workflow.kicker">Workflow</span></div>
+      <h2><span data-i18n="workflow.title_a">Nine steps,</span><br><span data-i18n="workflow.title_b">raw pixels</span><br><em data-i18n="workflow.title_c">to live map.</em></h2>
     </div>
-    <p class="lead">From raw Sentinel-2 scenes to a polished interactive WebGIS — each step feeds the next, with all intermediate outputs preserved for reproducibility.</p>
+    <p class="lead" data-i18n="workflow.lead">From raw Sentinel-2 scenes to a polished interactive WebGIS — each step feeds the next, with all intermediate outputs preserved for reproducibility.</p>
   </div>
 
   <div class="timeline reveal-stagger">
@@ -320,9 +321,9 @@
     <div class="step" data-num="01">
       <div class="step-head">
         <i class="bi bi-cloud-download step-icon"></i>
-        <div class="step-title">Acquire raw data</div>
+        <div class="step-title" data-i18n="workflow.s1_title">Acquire raw data</div>
       </div>
-      <div class="step-body">Download Sentinel-2 L2A scenes (one cloud-free composite per year), the OpenStreetMap extract for southern Thailand, and the Phuket administrative polygon.</div>
+      <div class="step-body" data-i18n="workflow.s1_body">Download Sentinel-2 L2A scenes (one cloud-free composite per year), the OpenStreetMap extract for southern Thailand, and the Phuket administrative polygon.</div>
       <div class="step-tags">
         <span class="tag-pill">Copernicus</span>
         <span class="tag-pill">Geofabrik</span>
@@ -333,9 +334,9 @@
     <div class="step" data-num="02">
       <div class="step-head">
         <i class="bi bi-image step-icon"></i>
-        <div class="step-title">Pre-process rasters</div>
+        <div class="step-title" data-i18n="workflow.s2_title">Pre-process rasters</div>
       </div>
-      <div class="step-body">Apply cloud masks, build a median composite per year, classify pixels into 4 classes (built / vegetation / water / bare) using a supervised model, then reproject to UTM Zone 47 N (EPSG:32647).</div>
+      <div class="step-body" data-i18n="workflow.s2_body">Apply cloud masks, build a median composite per year, classify pixels into 4 classes (built / vegetation / water / bare) using a supervised model, then reproject to UTM Zone 47 N (EPSG:32647).</div>
       <div class="step-tags">
         <span class="tag-pill">rasterio</span>
         <span class="tag-pill">scikit-learn</span>
@@ -346,9 +347,9 @@
     <div class="step" data-num="03">
       <div class="step-head">
         <i class="bi bi-grid-3x3-gap step-icon"></i>
-        <div class="step-title">Build the analysis grid</div>
+        <div class="step-title" data-i18n="workflow.s3_title">Build the analysis grid</div>
       </div>
-      <div class="step-body">Generate a 250 m × 250 m fishnet over the study area (9 644 cells), then run zonal statistics from each yearly raster to populate per-cell land-cover fractions plus NDVI and UHI proxy.</div>
+      <div class="step-body" data-i18n="workflow.s3_body">Generate a 250 m × 250 m fishnet over the study area (9 644 cells), then run zonal statistics from each yearly raster to populate per-cell land-cover fractions plus NDVI and UHI proxy.</div>
       <div class="step-tags">
         <span class="tag-pill">geopandas</span>
         <span class="tag-pill">shapely</span>
@@ -359,9 +360,9 @@
     <div class="step" data-num="04">
       <div class="step-head">
         <i class="bi bi-geo-alt step-icon"></i>
-        <div class="step-title">Enrich with OpenStreetMap</div>
+        <div class="step-title" data-i18n="workflow.s4_title">Enrich with OpenStreetMap</div>
       </div>
-      <div class="step-body">Spatial-join 244 016 OSM POIs into 5 categories per cell, compute distances to nearest medical / education / main road, derive POI density, Gini-Simpson diversity, and a composite livability score (0–100).</div>
+      <div class="step-body" data-i18n="workflow.s4_body">Spatial-join 244 016 OSM POIs into 5 categories per cell, compute distances to nearest medical / education / main road, derive POI density, Gini-Simpson diversity, and a composite livability score (0–100).</div>
       <div class="step-tags">
         <span class="tag-pill">osmnx</span>
         <span class="tag-pill">spatial join</span>
@@ -372,9 +373,9 @@
     <div class="step" data-num="05">
       <div class="step-head">
         <i class="bi bi-file-earmark-arrow-up step-icon"></i>
-        <div class="step-title">Export web-ready files</div>
+        <div class="step-title" data-i18n="workflow.s5_title">Export web-ready files</div>
       </div>
-      <div class="step-body">Re-project to WGS84, write GeoJSON for grid / POIs / roads, render PNG image overlays, and emit summary CSVs and a single JSON of headline KPIs.</div>
+      <div class="step-body" data-i18n="workflow.s5_body">Re-project to WGS84, write GeoJSON for grid / POIs / roads, render PNG image overlays, and emit summary CSVs and a single JSON of headline KPIs.</div>
       <div class="step-tags">
         <span class="tag-pill">GeoJSON</span>
         <span class="tag-pill">PNG</span>
@@ -385,9 +386,9 @@
     <div class="step" data-num="06">
       <div class="step-head">
         <i class="bi bi-server step-icon"></i>
-        <div class="step-title">Build the FastAPI backend</div>
+        <div class="step-title" data-i18n="workflow.s6_title">Build the FastAPI backend</div>
       </div>
-      <div class="step-body">Expose <code>/api/stats</code>, <code>/api/grid</code>, <code>/api/pois</code>, <code>/api/roads</code> and 5 chart endpoints; mount <code>/data</code> for static files; serve the SPA from the root.</div>
+      <div class="step-body" data-i18n-html="workflow.s6_body_html">Expose <code>/api/stats</code>, <code>/api/grid</code>, <code>/api/pois</code>, <code>/api/roads</code> and 5 chart endpoints; mount <code>/data</code> for static files; serve the SPA from the root.</div>
       <div class="step-tags">
         <span class="tag-pill">FastAPI</span>
         <span class="tag-pill">CORS</span>
@@ -398,9 +399,9 @@
     <div class="step" data-num="07">
       <div class="step-head">
         <i class="bi bi-window step-icon"></i>
-        <div class="step-title">Build the frontend</div>
+        <div class="step-title" data-i18n="workflow.s7_title">Build the frontend</div>
       </div>
-      <div class="step-body">Wire Leaflet with a transparent canvas overlay (strips black NoData pixels), a 250 m grid choropleth, POI clusters, year animation, hover tooltip, floating side panels, and SVG charts.</div>
+      <div class="step-body" data-i18n="workflow.s7_body">Wire Leaflet with a transparent canvas overlay (strips background pixels), a 250 m grid choropleth, POI clusters, year animation, hover tooltip, floating side panels, and SVG charts.</div>
       <div class="step-tags">
         <span class="tag-pill">Leaflet</span>
         <span class="tag-pill">SVG</span>
@@ -411,9 +412,9 @@
     <div class="step" data-num="08">
       <div class="step-head">
         <i class="bi bi-play-circle step-icon"></i>
-        <div class="step-title">Run &amp; iterate locally</div>
+        <div class="step-title" data-i18n="workflow.s8_title">Run &amp; iterate locally</div>
       </div>
-      <div class="step-body">Serve via <code>uvicorn main:app --reload --port 8080</code>, debug with browser DevTools, profile slow endpoints, and refine UX based on usage.</div>
+      <div class="step-body" data-i18n-html="workflow.s8_body_html">Serve via <code>uvicorn main:app --reload --port 8080</code>, debug with browser DevTools, profile slow endpoints, and refine UX based on usage.</div>
       <div class="step-tags">
         <span class="tag-pill">uvicorn</span>
         <span class="tag-pill">DevTools</span>
@@ -423,9 +424,9 @@
     <div class="step" data-num="09">
       <div class="step-head">
         <i class="bi bi-rocket-takeoff step-icon"></i>
-        <div class="step-title">Deploy (optional)</div>
+        <div class="step-title" data-i18n="workflow.s9_title">Deploy</div>
       </div>
-      <div class="step-body">Containerise with Docker, host on Render / Fly.io / DigitalOcean, or pre-render data and host a fully static mirror on GitHub Pages + Netlify Functions.</div>
+      <div class="step-body" data-i18n="workflow.s9_body">Containerise with Docker, host on Render / Fly.io / DigitalOcean, or pre-render data and host a fully static mirror on GitHub Pages + Netlify Functions.</div>
       <div class="step-tags">
         <span class="tag-pill">Docker</span>
         <span class="tag-pill">Render</span>
@@ -441,10 +442,10 @@
      ═══════════════════════════════════════════════════════ -->
 <section class="cta-section">
   <div class="reveal">
-    <h2>Ready to <em>explore?</em></h2>
-    <p class="lead">Open the interactive map and start clicking around — every grid cell tells a story.</p>
+    <h2><span data-i18n="cta.title_a">Ready to</span> <em data-i18n="cta.title_b">explore?</em></h2>
+    <p class="lead" data-i18n="cta.lead">Open the interactive map and start clicking around — every grid cell tells a story.</p>
     <a href="index.html" class="btn btn-primary">
-      Launch the WebGIS <i class="bi bi-arrow-up-right"></i>
+      <span data-i18n="cta.launch">Launch the WebGIS</span> <i class="bi bi-arrow-up-right"></i>
     </a>
   </div>
 </section>
@@ -455,19 +456,19 @@
 <footer>
   <div class="footer-meta">
     <div class="footer-col">
-      <div class="footer-col-title">Project</div>
+      <div class="footer-col-title" data-i18n="footer.project">Project</div>
       <p>Phuket WebGIS</p>
       <p>GEO 444 / 445 / 446</p>
       <p>2026</p>
     </div>
     <div class="footer-col">
-      <div class="footer-col-title">Data</div>
+      <div class="footer-col-title" data-i18n="footer.data">Data</div>
       <p>Sentinel-2 (Copernicus)</p>
       <p>OpenStreetMap</p>
       <p>GADM / DOL Thailand</p>
     </div>
     <div class="footer-col">
-      <div class="footer-col-title">Built with</div>
+      <div class="footer-col-title" data-i18n="footer.built_with">Built with</div>
       <p>FastAPI · Uvicorn</p>
       <p>Leaflet · MarkerCluster</p>
       <p>Vanilla HTML / CSS / JS</p>
@@ -477,12 +478,16 @@
   <div class="footer-wordmark">Phuket<em>.</em></div>
 
   <div class="footer-base">
-    <span>© 2026 — Land Use &amp; Livability Analysis</span>
-    <span>An editorial study, 2018 → 2026</span>
+    <span data-i18n="footer.copyright">© 2026 — Land Use &amp; Livability Analysis</span>
+    <span data-i18n="footer.editorial">An editorial study, 2018 → 2026</span>
   </div>
 </footer>
 
+<script src="i18n.js"></script>
 <script>
+I18N.init();
+document.getElementById('langToggle').addEventListener('click', () => I18N.toggle());
+
 // ─── Animated canvas waves ─────────────────────────────
 (function () {
   const canvas = document.getElementById('waveCanvas');

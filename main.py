@@ -1,9 +1,12 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
 import csv
 import json
+import os
+
+from fastapi import FastAPI, HTTPException, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Phuket WebGIS")
 
@@ -13,6 +16,7 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=512)
 
 DATA_WEB = "data/09_web"
 
@@ -70,6 +74,30 @@ async def get_grid():
     return FileResponse(
         f"{DATA_WEB}/phuket_grid.geojson",
         media_type="application/geo+json",
+    )
+
+
+@app.get("/api/tiles/{z}/{x}/{y}.pbf")
+async def get_tile(z: int, x: int, y: int):
+    path = f"{DATA_WEB}/tiles/{z}/{x}/{y}.pbf"
+    if not os.path.exists(path):
+        # Empty 204 — VectorGrid handles missing tiles gracefully
+        return Response(status_code=204)
+    with open(path, "rb") as f:
+        data = f.read()
+    return Response(
+        content=data,
+        media_type="application/x-protobuf",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@app.get("/api/cell-index")
+async def get_cell_index():
+    return FileResponse(
+        f"{DATA_WEB}/cell_index.json",
+        media_type="application/json",
+        headers={"Cache-Control": "public, max-age=86400"},
     )
 
 

@@ -121,27 +121,27 @@ function getGridColor(p) {
 
 const LEGEND_DEFS = {
   livability: {
-    title: 'Livability Score',
+    titleKey: 'colorby.livability',
     items: [['≥ 80', '#1a9850'], ['70–80', '#66bd63'], ['60–70', '#a6d96a'],
             ['50–60', '#fee08b'], ['40–50', '#fdae61'], ['30–40', '#f46d43'], ['< 30', '#d73027']],
   },
   growth_pct: {
-    title: 'Built Growth (%)',
+    titleKey: 'colorby.growth',
     items: [['> 100%', '#08519c'], ['50–100%', '#3182bd'], ['20–50%', '#6baed6'],
             ['0–20%', '#bdd7e7'], ['0 to -20%', '#fddbc7'], ['-20 to -50%', '#f4a582'], ['< -50%', '#d6604d']],
   },
   poi_density: {
-    title: 'POI Density (/km²)',
+    titleKey: 'colorby.poi_density',
     items: [['> 20', '#08306b'], ['10–20', '#08519c'], ['5–10', '#2171b5'],
             ['2–5', '#4292c6'], ['0–2', '#9ecae1'], ['0', '#deebf7']],
   },
   uhi_proxy: {
-    title: 'UHI Proxy',
+    titleKey: 'colorby.uhi',
     items: [['> 0.35', '#7f0000'], ['0.30–0.35', '#b30000'], ['0.25–0.30', '#d7301f'],
             ['0.20–0.25', '#ef6548'], ['0.15–0.20', '#fc8d59'], ['0.10–0.15', '#fdbb84'], ['< 0.10', '#fdd49e']],
   },
   ndvi_mean: {
-    title: 'NDVI Mean',
+    titleKey: 'colorby.ndvi',
     items: [['> 0.70', '#006837'], ['0.50–0.70', '#1a9850'], ['0.30–0.50', '#66bd63'],
             ['0.10–0.30', '#d9ef8b'], ['-0.10–0.10', '#ffffbf'], ['< -0.10', '#fdae61']],
   },
@@ -250,71 +250,110 @@ function livabilityLabel(v) {
   if (v >= 30) return { th: 'ต่ำ',           en: 'Poor',         color: '#f46d43' };
   return              { th: 'ต่ำมาก',        en: 'Very Poor',    color: '#d73027' };
 }
+function livLabelText(v) {
+  const l = livabilityLabel(v);
+  return (window.I18N && I18N.current === 'th') ? l.th : l.en;
+}
 
-// ─── Grid layer ───────────────────────────────────────────────
-function gridStyle(feature) {
+// ─── Grid layer (VectorGrid.protobuf tiles) ──────────────────
+function gridFeatureStyle(props) {
   return {
-    fillColor: getGridColor(feature.properties),
+    fill: true,
+    fillColor: getGridColor(props),
     fillOpacity: App.gridOpacity,
+    stroke: true,
     color: 'rgba(30,64,175,0.18)',
     weight: 0.4,
   };
 }
 
-function updateCellHighlight(feature) {
-  if (App.highlightLayer) { App.map.removeLayer(App.highlightLayer); App.highlightLayer = null; }
-  if (!feature) return;
-  App.highlightLayer = L.geoJSON(feature, {
-    style: () => ({ className: 'cell-highlight-shape', weight: 0, fillOpacity: 0 }),
-    interactive: false,
-  }).addTo(App.map);
+function updateCellHighlight() {
+  // Highlight = thicker stroke on the selected feature via VectorGrid setFeatureStyle.
+  // Previous selection is reset by refreshGridStyle below.
+}
+
+async function loadCellIndex() {
+  if (App.cellIndex) return App.cellIndex;
+  try {
+    const res = await fetch('/api/cell-index');
+    App.cellIndex = await res.json();
+  } catch (e) {
+    App.cellIndex = {};
+  }
+  return App.cellIndex;
 }
 
 async function loadGrid() {
-  if (App.layers.grid.loaded) return;
-  showLoading('Loading analysis grid (~14 MB)…');
-  try {
-    const res = await fetch('/api/grid');
-    const data = await res.json();
-    App.layers.grid.data = data;
-    data.features.forEach(f => { App.layers.grid.byId[f.properties.cell_id] = f; });
-    App.layers.grid.loaded = true;
-    buildGridLayer();
-  } finally {
-    hideLoading();
+  // Lazy-load lightweight centroid index (~260 KB) for fly-to lookups.
+  // Tiles themselves load on demand as the user pans/zooms.
+  if (!App.layers.grid.loaded) {
+    showLoading((window.t ? t('loading.grid') : 'Loading analysis grid…'));
+    try {
+      await loadCellIndex();
+      App.layers.grid.loaded = true;
+      buildGridLayer();
+    } finally {
+      hideLoading();
+    }
   }
 }
 
 function buildGridLayer() {
   if (App.layers.grid.layer) App.map.removeLayer(App.layers.grid.layer);
-  App.layers.grid.layer = L.geoJSON(App.layers.grid.data, {
-    style: gridStyle,
-    renderer: L.canvas({ padding: 0.5 }),
-    onEachFeature(feature, layer) {
-      layer.on({
-        click: e => {
-          if (App.drawMode.active) return;
-          App.selectedCellId = feature.properties.cell_id;
-          refreshGridStyle();
-          updateCellHighlight(feature);
-          showInfoPanel(feature.properties);
-        },
-        mouseover: e => showHoverTip(feature.properties, e.originalEvent),
-        mousemove: e => moveHoverTip(e.originalEvent),
-        mouseout:  () => hideHoverTip(),
-      });
+
+  App.layers.grid.layer = L.vectorGrid.protobuf('/api/tiles/{z}/{x}/{y}.pbf', {
+    minZoom: 9,
+    maxZoom: 18,
+    maxNativeZoom: 14,
+    minNativeZoom: 10,
+    interactive: true,
+    getFeatureId: f => f.properties.cell_id,
+    vectorTileLayerStyles: {
+      grid: (props, zoom) => gridFeatureStyle(props),
     },
   });
+
+  App.layers.grid.layer.on('click', e => {
+    if (App.drawMode.active) return;
+    const props = e.layer.properties;
+    if (App.selectedCellId != null) {
+      App.layers.grid.layer.resetFeatureStyle(App.selectedCellId);
+    }
+    App.selectedCellId = props.cell_id;
+    App.layers.grid.layer.setFeatureStyle(props.cell_id, {
+      ...gridFeatureStyle(props),
+      color: '#0f2557',
+      weight: 2,
+      fillOpacity: Math.min(0.95, App.gridOpacity + 0.15),
+    });
+    showInfoPanel(props);
+    L.DomEvent.stop(e);
+  });
+  App.layers.grid.layer.on('mouseover', e => {
+    if (App.drawMode.active) return;
+    showHoverTip(e.layer.properties, e.originalEvent);
+  });
+  App.layers.grid.layer.on('mousemove', e => moveHoverTip(e.originalEvent));
+  App.layers.grid.layer.on('mouseout', () => hideHoverTip());
 }
 
 function refreshGridStyle() {
-  if (App.layers.grid.layer) App.layers.grid.layer.setStyle(gridStyle);
+  if (!App.layers.grid.layer) return;
+  App.layers.grid.layer.redraw();
+  if (App.selectedCellId != null && App.currentCellProps) {
+    App.layers.grid.layer.setFeatureStyle(App.selectedCellId, {
+      ...gridFeatureStyle(App.currentCellProps),
+      color: '#0f2557',
+      weight: 2,
+      fillOpacity: Math.min(0.95, App.gridOpacity + 0.15),
+    });
+  }
 }
 
 // ─── Roads layer ──────────────────────────────────────────────
 async function loadRoads() {
   if (App.layers.roads.loaded) return;
-  showLoading('Loading road network…');
+  showLoading((window.t ? t('loading.roads') : 'Loading road network…'));
   try {
     const res = await fetch('/api/roads');
     const data = await res.json();
@@ -337,7 +376,7 @@ async function loadRoads() {
 // ─── POI layer ────────────────────────────────────────────────
 async function loadPois() {
   if (App.layers.pois.loaded) return;
-  showLoading('Loading points of interest…');
+  showLoading((window.t ? t('loading.pois') : 'Loading points of interest…'));
   try {
     const res = await fetch('/api/pois');
     const data = await res.json();
@@ -437,7 +476,7 @@ function showHoverTip(p, ev) {
   document.getElementById('htLiv').innerHTML =
     `<b style="color:${lbl.color}">${(p.livability || 0).toFixed(1)}</b>`;
   document.getElementById('htLivLabel').innerHTML =
-    `<b style="color:${lbl.color}">${lbl.th}</b>`;
+    `<b style="color:${lbl.color}">${livLabelText(p.livability || 0)}</b>`;
   document.getElementById('htGrowth').innerHTML =
     `<b style="color:${(p.growth_pct||0)>=0?'var(--green)':'var(--red)'}">${(p.growth_pct || 0).toFixed(1)}%</b>`;
   document.getElementById('htPoi').innerHTML = `<b>${p.poi_total || 0}</b>`;
@@ -488,13 +527,15 @@ function showInfoPanel(p) {
 
   const isPinned = App.pinnedCells.some(c => c.cell_id === p.cell_id);
 
+  const _t = window.t || (k => k);
+  const lblText = livLabelText(liv);
   document.getElementById('infoPanelContent').innerHTML = `
     <div class="info-section">
       <div class="info-cell-header">
-        <div class="info-section-title" style="margin-bottom:0"><i class="bi bi-pin-map-fill"></i> Cell #${p.cell_id}</div>
+        <div class="info-section-title" style="margin-bottom:0"><i class="bi bi-pin-map-fill"></i> ${_t('info.cell')} #${p.cell_id}</div>
         <button class="pin-cell-btn ${isPinned ? 'pinned' : ''}" onclick="pinCell(App.currentCellProps)">
           <i class="bi bi-pin-angle${isPinned ? '-fill' : ''}"></i>
-          ${isPinned ? 'Pinned' : 'Pin'}
+          ${isPinned ? _t('info.pinned') : _t('info.pin')}
         </button>
       </div>
       <div class="gauge-wrap" style="margin-top:12px">
@@ -502,13 +543,13 @@ function showInfoPanel(p) {
         <div class="gauge-val" style="color:${livColor}">${liv.toFixed(1)}</div>
       </div>
       <div class="gauge-cap">
-        <span class="liv-band-pill" style="background:${lbl.color}22;color:${lbl.color};border-color:${lbl.color}55">${lbl.th}</span>
-        <span class="gauge-cap-label">year ${yr}</span>
+        <span class="liv-band-pill" style="background:${lbl.color}22;color:${lbl.color};border-color:${lbl.color}55">${lblText}</span>
+        <span class="gauge-cap-label">${_t('info.year')} ${yr}</span>
       </div>
     </div>
 
     <div class="info-section">
-      <div class="info-section-title"><i class="bi bi-pie-chart-fill"></i> Land Cover ${yr}</div>
+      <div class="info-section-title"><i class="bi bi-pie-chart-fill"></i> ${_t('info.land_cover')} ${yr}</div>
       <div class="lc-bar-stack">
         <div class="lc-seg" style="width:${built}%;background:#c0392b" title="Built ${built.toFixed(1)}%"></div>
         <div class="lc-seg" style="width:${veg}%;background:#27ae60" title="Veg ${veg.toFixed(1)}%"></div>
@@ -524,64 +565,64 @@ function showInfoPanel(p) {
     </div>
 
     <div class="info-section">
-      <div class="info-section-title"><i class="bi bi-graph-up-arrow"></i> Built Growth 2018→2026</div>
+      <div class="info-section-title"><i class="bi bi-graph-up-arrow"></i> ${_t('info.built_growth')}</div>
       <span class="growth-badge ${growthClass}">
         <i class="bi ${growthIcon}"></i>${growth.toFixed(1)}%
       </span>
     </div>
 
     <div class="info-section">
-      <div class="info-section-title"><i class="bi bi-geo-alt-fill"></i> Points of Interest (${p.poi_total || 0} total)</div>
-      ${poiBar('medical',    'Medical',    p.poi_medical || 0,    '#e74c3c', 'bi-hospital-fill')}
-      ${poiBar('recreation', 'Recreation', p.poi_recreation || 0, '#27ae60', 'bi-tree-fill')}
-      ${poiBar('living',     'Living',     p.poi_living || 0,     '#3498db', 'bi-shop')}
-      ${poiBar('transport',  'Transport',  p.poi_transport || 0,  '#f39c12', 'bi-bus-front-fill')}
-      ${poiBar('education',  'Education',  p.poi_education || 0,  '#9b59b6', 'bi-mortarboard-fill')}
+      <div class="info-section-title"><i class="bi bi-geo-alt-fill"></i> ${_t('info.pois_total')} (${p.poi_total || 0})</div>
+      ${poiBar('medical',    _t('cat.medical'),    p.poi_medical || 0,    '#e74c3c', 'bi-hospital-fill')}
+      ${poiBar('recreation', _t('cat.recreation'), p.poi_recreation || 0, '#27ae60', 'bi-tree-fill')}
+      ${poiBar('living',     _t('cat.living'),     p.poi_living || 0,     '#3498db', 'bi-shop')}
+      ${poiBar('transport',  _t('cat.transport'),  p.poi_transport || 0,  '#f39c12', 'bi-bus-front-fill')}
+      ${poiBar('education',  _t('cat.education'),  p.poi_education || 0,  '#9b59b6', 'bi-mortarboard-fill')}
       <div style="font-size:11px;color:var(--gray-400);margin-top:6px">
-        Density: <b style="color:var(--gray-700)">${(p.poi_density||0).toFixed(2)}/km²</b>
+        ${_t('info.density')}: <b style="color:var(--gray-700)">${(p.poi_density||0).toFixed(2)}/km²</b>
       </div>
     </div>
 
     <div class="info-section">
-      <div class="info-section-title"><i class="bi bi-pin-angle-fill"></i> Service Proximity</div>
+      <div class="info-section-title"><i class="bi bi-pin-angle-fill"></i> ${_t('info.proximity')}</div>
       <div class="dist-grid">
         <div class="dist-card">
           <div class="dist-icon"><i class="bi bi-hospital"></i></div>
           <div class="dist-val">${Math.round(p.dist_medical||0)} m</div>
-          <div class="dist-lbl">Medical</div>
+          <div class="dist-lbl">${_t('info.medical')}</div>
         </div>
         <div class="dist-card">
           <div class="dist-icon"><i class="bi bi-mortarboard"></i></div>
           <div class="dist-val">${Math.round(p.dist_education||0)} m</div>
-          <div class="dist-lbl">Education</div>
+          <div class="dist-lbl">${_t('info.education')}</div>
         </div>
         <div class="dist-card">
           <div class="dist-icon"><i class="bi bi-shop"></i></div>
           <div class="dist-val">${Math.round(p.dist_living||0)} m</div>
-          <div class="dist-lbl">Living</div>
+          <div class="dist-lbl">${_t('info.living')}</div>
         </div>
         <div class="dist-card">
           <div class="dist-icon"><i class="bi bi-sign-turn-right"></i></div>
           <div class="dist-val">${Math.round(p.dist_main_road_m||0)} m</div>
-          <div class="dist-lbl">Main Road</div>
+          <div class="dist-lbl">${_t('info.main_road')}</div>
         </div>
       </div>
     </div>
 
     <div class="info-section">
-      <div class="info-section-title"><i class="bi bi-thermometer-half"></i> Environmental Indices</div>
+      <div class="info-section-title"><i class="bi bi-thermometer-half"></i> ${_t('info.env_indices')}</div>
       <div class="env-grid">
         <div class="env-card">
           <div class="env-val" style="color:${ndviColor}">${(p.ndvi_mean||0).toFixed(3)}</div>
-          <div class="env-lbl">NDVI</div>
+          <div class="env-lbl">${_t('info.ndvi')}</div>
         </div>
         <div class="env-card">
           <div class="env-val" style="color:${uhiColor}">${(p.uhi_proxy||0).toFixed(3)}</div>
-          <div class="env-lbl">UHI Proxy</div>
+          <div class="env-lbl">${_t('info.uhi')}</div>
         </div>
         <div class="env-card">
           <div class="env-val" style="color:var(--blue-700)">${(p.gini_simpson||0).toFixed(3)}</div>
-          <div class="env-lbl">POI Diversity</div>
+          <div class="env-lbl">${_t('info.poi_diversity')}</div>
         </div>
       </div>
     </div>
@@ -598,35 +639,36 @@ function buildLegend() {
   const tcOn    = document.getElementById('layerTruecolor').checked;
   const clOn    = document.getElementById('layerClassified').checked;
 
+  const _t = window.t || (k => k);
   let html = '';
 
   if (gridOn) {
     const def = LEGEND_DEFS[App.gridColorBy];
-    html += `<div class="legend-group-title">${def.title}</div>`;
+    html += `<div class="legend-group-title">${_t(def.titleKey)}</div>`;
     def.items.forEach(([label, color]) => {
       html += `<div class="legend-item"><span class="leg-swatch" style="background:${color}"></span>${label}</div>`;
     });
   }
   if (roadsOn) {
     if (html) html += '<div style="height:6px"></div>';
-    html += '<div class="legend-group-title">Road Network</div>';
-    [['Primary / Trunk', ROAD_COLORS.primary], ['Secondary', ROAD_COLORS.secondary], ['Other', ROAD_COLORS.other]]
+    html += `<div class="legend-group-title">${_t('legend.road_network')}</div>`;
+    [[_t('legend.road_primary'), ROAD_COLORS.primary], [_t('legend.road_secondary'), ROAD_COLORS.secondary], [_t('legend.road_other'), ROAD_COLORS.other]]
       .forEach(([l, c]) => {
         html += `<div class="legend-item"><span class="leg-line" style="background:${c}"></span>${l}</div>`;
       });
   }
   if (poisOn) {
     if (html) html += '<div style="height:6px"></div>';
-    html += '<div class="legend-group-title">Points of Interest</div>';
+    html += `<div class="legend-group-title">${_t('layer.pois')}</div>`;
     Object.entries(POI_COLORS).forEach(([cat, col]) => {
       if (App.poiActive.has(cat)) {
-        html += `<div class="legend-item"><span class="leg-dot" style="background:${col}"></span>${cat[0].toUpperCase()+cat.slice(1)}</div>`;
+        html += `<div class="legend-item"><span class="leg-dot" style="background:${col}"></span>${_t('cat.' + cat)}</div>`;
       }
     });
   }
   if (clOn) {
     if (html) html += '<div style="height:6px"></div>';
-    html += '<div class="legend-group-title">Land Cover</div>';
+    html += `<div class="legend-group-title">${_t('info.land_cover')}</div>`;
     [['Built-up', '#c0392b'], ['Vegetation', '#27ae60'], ['Water', '#2980b9'], ['Bare Land', '#e67e22']]
       .forEach(([l, c]) => {
         html += `<div class="legend-item"><span class="leg-swatch" style="background:${c}"></span>${l}</div>`;
@@ -634,11 +676,11 @@ function buildLegend() {
   }
   if (tcOn && !clOn) {
     if (html) html += '<div style="height:6px"></div>';
-    html += '<div class="legend-group-title">True Color</div>';
+    html += `<div class="legend-group-title">${_t('split.truecolor')}</div>`;
     html += '<div class="legend-item" style="color:var(--gray-400);font-size:11px">Sentinel-2 RGB composite</div>';
   }
 
-  el.innerHTML = html || '<span class="legend-empty">Enable layers to see legend.</span>';
+  el.innerHTML = html || `<span class="legend-empty">${_t('legend.empty')}</span>`;
 }
 
 // ─── Year selection ───────────────────────────────────────────
@@ -751,7 +793,7 @@ function bindUI() {
   document.getElementById('gridOpacity').addEventListener('input', e => {
     App.gridOpacity = +e.target.value / 100;
     document.getElementById('gridOpacityVal').textContent = `${e.target.value}%`;
-    if (App.layers.grid.layer) App.layers.grid.layer.setStyle({ fillOpacity: App.gridOpacity });
+    refreshGridStyle();
   });
 
   // Roads
@@ -994,10 +1036,13 @@ function pinCell(p) {
   if (App.pinnedCells.some(c => c.cell_id === p.cell_id)) {
     unpinCell(p.cell_id); return;
   }
-  if (App.pinnedCells.length >= 3) { toast('สูงสุด 3 เซลล์ที่ pin ได้'); return; }
+  if (App.pinnedCells.length >= 3) {
+    toast((window.I18N && I18N.current === 'th') ? 'ปักได้สูงสุด 3 เซลล์' : 'Maximum 3 cells can be pinned');
+    return;
+  }
   App.pinnedCells.push(p);
   updatePinUI();
-  toast(`Cell #${p.cell_id} pinned`);
+  toast((window.t ? t('info.cell') : 'Cell') + ` #${p.cell_id} ` + ((window.I18N && I18N.current === 'th') ? 'ปักแล้ว' : 'pinned'));
   if (App.currentCellProps && App.currentCellProps.cell_id === p.cell_id) showInfoPanel(p);
 }
 
@@ -1032,23 +1077,25 @@ function showCompareModal() {
   const cells = App.pinnedCells;
   if (cells.length < 2) return;
   const yr = App.currentYear;
+  const _t = window.t || (k => k);
+  const isTh = window.I18N && I18N.current === 'th';
   const metrics = [
-    { key: 'Livability',        fn: p => (p.livability||0).toFixed(1),              color: p => colorLivability(p.livability||0) },
-    { key: 'Rating',            fn: p => livabilityLabel(p.livability||0).th,        color: p => livabilityLabel(p.livability||0).color },
-    { key: `Built ${yr}`,       fn: p => ((p[`built_${yr}`]||0)*100).toFixed(1)+'%' },
-    { key: `Veg ${yr}`,         fn: p => ((p[`veg_${yr}`]||0)*100).toFixed(1)+'%' },
-    { key: 'Growth 18→26',      fn: p => ((p.growth_pct||0)>0?'+':'')+((p.growth_pct||0).toFixed(1))+'%', color: p => (p.growth_pct||0)>=0?'var(--green)':'var(--red)' },
-    { key: 'Total POIs',        fn: p => (p.poi_total||0).toLocaleString() },
-    { key: 'POI Density',       fn: p => (p.poi_density||0).toFixed(2)+'/km²' },
-    { key: 'NDVI',              fn: p => (p.ndvi_mean||0).toFixed(3),               color: p => colorNDVI(p.ndvi_mean||0) },
-    { key: 'UHI Proxy',         fn: p => (p.uhi_proxy||0).toFixed(3),               color: p => colorUHI(p.uhi_proxy||0) },
-    { key: 'Dist Medical',      fn: p => Math.round(p.dist_medical||0)+' m' },
-    { key: 'Dist Education',    fn: p => Math.round(p.dist_education||0)+' m' },
-    { key: 'Dist Main Road',    fn: p => Math.round(p.dist_main_road_m||0)+' m' },
+    { key: _t('hover.livability'),                                          fn: p => (p.livability||0).toFixed(1),              color: p => colorLivability(p.livability||0) },
+    { key: isTh ? 'ระดับ' : 'Rating',                                       fn: p => livLabelText(p.livability||0),             color: p => livabilityLabel(p.livability||0).color },
+    { key: `${isTh ? 'สิ่งปลูกสร้าง' : 'Built'} ${yr}`,                     fn: p => ((p[`built_${yr}`]||0)*100).toFixed(1)+'%' },
+    { key: `${isTh ? 'พืชพรรณ' : 'Veg'} ${yr}`,                             fn: p => ((p[`veg_${yr}`]||0)*100).toFixed(1)+'%' },
+    { key: isTh ? 'เติบโต 18→26' : 'Growth 18→26',                          fn: p => ((p.growth_pct||0)>0?'+':'')+((p.growth_pct||0).toFixed(1))+'%', color: p => (p.growth_pct||0)>=0?'var(--green)':'var(--red)' },
+    { key: isTh ? 'จุดสนใจรวม' : 'Total POIs',                              fn: p => (p.poi_total||0).toLocaleString() },
+    { key: _t('colorby.poi_density'),                                       fn: p => (p.poi_density||0).toFixed(2)+'/km²' },
+    { key: _t('info.ndvi'),                                                 fn: p => (p.ndvi_mean||0).toFixed(3),               color: p => colorNDVI(p.ndvi_mean||0) },
+    { key: _t('info.uhi'),                                                  fn: p => (p.uhi_proxy||0).toFixed(3),               color: p => colorUHI(p.uhi_proxy||0) },
+    { key: (isTh ? 'ระยะถึง' : 'Dist ') + _t('info.medical'),               fn: p => Math.round(p.dist_medical||0)+' m' },
+    { key: (isTh ? 'ระยะถึง' : 'Dist ') + _t('info.education'),             fn: p => Math.round(p.dist_education||0)+' m' },
+    { key: (isTh ? 'ระยะถึง' : 'Dist ') + _t('info.main_road'),             fn: p => Math.round(p.dist_main_road_m||0)+' m' },
   ];
 
-  const colHdr = cells.map(p => `<div class="cmp-cell-col" style="font-weight:700">Cell #${p.cell_id}</div>`).join('');
-  let html = `<div class="cmp-header-row"><div class="cmp-metric-col">Metric</div>${colHdr}</div>`;
+  const colHdr = cells.map(p => `<div class="cmp-cell-col" style="font-weight:700">${_t('info.cell')} #${p.cell_id}</div>`).join('');
+  let html = `<div class="cmp-header-row"><div class="cmp-metric-col">${isTh ? 'ตัวชี้วัด' : 'Metric'}</div>${colHdr}</div>`;
   metrics.forEach(m => {
     const cols = cells.map(p => {
       const val = m.fn(p);
@@ -1208,14 +1255,19 @@ function _showDrawStats(features) {
 }
 
 // ─── Hotspot navigation (called from charts.js) ───────────────
-function flyToCell(cellId) {
-  const f = App.layers.grid.byId[cellId];
-  if (!f) {
-    toast('Enable the analysis grid first to navigate to cells.');
+async function flyToCell(cellId) {
+  const idx = await loadCellIndex();
+  const c = idx[cellId];
+  if (!c) {
+    toast((window.I18N && I18N.current === 'th')
+      ? 'ไม่พบเซลล์ในดัชนี'
+      : 'Cell not found in index.');
     return;
   }
-  const layer = L.geoJSON(f);
-  const c = layer.getBounds().getCenter();
-  App.map.flyTo(c, 14, { duration: 0.8 });
-  showInfoPanel(f.properties);
+  // Make sure the grid layer is on so the user can see the cell.
+  if (!document.getElementById('layerGrid').checked) {
+    document.getElementById('layerGrid').checked = true;
+    document.getElementById('layerGrid').dispatchEvent(new Event('change'));
+  }
+  App.map.flyTo([c[1], c[0]], 14, { duration: 0.8 });
 }

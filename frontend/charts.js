@@ -20,48 +20,53 @@ const fmt = {
 
 // ─── Top stat cards ───────────────────────────────────────────
 function renderStatCards(s) {
+  if (!s) return;
   const el = document.getElementById('statsPanel');
+  const isTh = window.I18N && I18N.current === 'th';
+  const L = isTh
+    ? { area: 'ตร.กม.', cells: 'เซลล์ตาราง', liv: 'การอยู่อาศัยเฉลี่ย', risk: 'เซลล์เสี่ยง', uhi: 'จุดร้อน UHI', pois: 'จุดสนใจรวม', roads: 'ถนนหลัก', div: 'ความหลากหลายจุดสนใจ' }
+    : { area: 'km² area', cells: 'grid cells', liv: 'mean livability', risk: 'risk cells', uhi: 'UHI hotspots', pois: 'total POIs', roads: 'main roads', div: 'POI diversity' };
   el.innerHTML = `
     <div class="stat-grid">
       <div class="stat-card">
         <i class="bi bi-bounding-box"></i>
         <div class="stat-val">${s.total_area_km2}</div>
-        <div class="stat-lbl">km² area</div>
+        <div class="stat-lbl">${L.area}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-grid-3x3-gap-fill"></i>
         <div class="stat-val">${fmt.int(s.total_cells)}</div>
-        <div class="stat-lbl">grid cells</div>
+        <div class="stat-lbl">${L.cells}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-heart-pulse-fill"></i>
         <div class="stat-val">${(+s.mean_livability).toFixed(1)}</div>
-        <div class="stat-lbl">mean livability</div>
+        <div class="stat-lbl">${L.liv}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-exclamation-diamond-fill"></i>
         <div class="stat-val">${fmt.int(s.risk_cells)}</div>
-        <div class="stat-lbl">risk cells</div>
+        <div class="stat-lbl">${L.risk}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-thermometer-sun"></i>
         <div class="stat-val">${fmt.int(s.uhi_hotspot_cells)}</div>
-        <div class="stat-lbl">UHI hotspots</div>
+        <div class="stat-lbl">${L.uhi}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-geo-fill"></i>
         <div class="stat-val">${(s.total_pois/1000).toFixed(0)}k</div>
-        <div class="stat-lbl">total POIs</div>
+        <div class="stat-lbl">${L.pois}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-signpost-2-fill"></i>
         <div class="stat-val">${fmt.int(s.total_main_roads)}</div>
-        <div class="stat-lbl">main roads</div>
+        <div class="stat-lbl">${L.roads}</div>
       </div>
       <div class="stat-card">
         <i class="bi bi-flower1"></i>
         <div class="stat-val">${(+s.mean_gini_simpson).toFixed(2)}</div>
-        <div class="stat-lbl">POI diversity</div>
+        <div class="stat-lbl">${L.div}</div>
       </div>
     </div>
   `;
@@ -335,16 +340,19 @@ function renderAccessibilityChart(rows) {
 
 // ─── Hotspot list (top livability / growth / risk cells) ─────
 function renderHotspots(rows) {
+  if (rows) renderHotspots._rows = rows;
+  rows = renderHotspots._rows || [];
+  const isTh = window.I18N && I18N.current === 'th';
+  const _t = window.t || (k => k);
+
   // Group by rank_by
   const groups = { livability_high: [], growth_high: [], risk: [] };
   rows.forEach(r => { if (groups[r.rank_by]) groups[r.rank_by].push(r); });
 
-  let activeGroup = 'livability_high';
+  let activeGroup = renderHotspots._active || 'livability_high';
 
   function renderList(group) {
     const list = groups[group] || [];
-    const valKey = group === 'livability_high' ? 'livability'
-                : group === 'growth_high' ? 'growth_pct' : 'livability';
 
     let html = '';
     list.slice(0, 20).forEach(r => {
@@ -359,11 +367,13 @@ function renderHotspots(rows) {
         valDisplay = (+r.livability).toFixed(1);
         valColor = '#dc2626';
       }
+      const poiLbl = isTh ? 'จุดสนใจ' : 'POIs';
+      const divLbl = isTh ? 'หลากหลาย' : 'Diversity';
       html += `
         <div class="hs-row" data-cell-id="${r.cell_id}">
           <div>
-            <div class="hs-id">Cell #${r.cell_id}</div>
-            <div class="hs-meta">POIs: ${r.poi_total} · Diversity: ${(+r.gini_simpson).toFixed(2)}</div>
+            <div class="hs-id">${_t('info.cell')} #${r.cell_id}</div>
+            <div class="hs-meta">${poiLbl}: ${r.poi_total} · ${divLbl}: ${(+r.gini_simpson).toFixed(2)}</div>
           </div>
           <div class="hs-val" style="color:${valColor}">${valDisplay}</div>
         </div>`;
@@ -385,6 +395,7 @@ function renderHotspots(rows) {
       document.querySelectorAll('.hs-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       activeGroup = tab.dataset.group;
+      renderHotspots._active = activeGroup;
       renderList(activeGroup);
     });
   });
