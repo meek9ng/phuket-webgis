@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 
 <body>
@@ -38,7 +38,7 @@
 <!-- ───────────────── LEFT PANEL ───────────────── -->
 <div id="panel">
   <div class="panel-header">
-    <button id="langToggle" class="lang-toggle-btn" data-i18n-title="nav.toggle_lang" title="Switch language" aria-label="Switch language">
+    <button id="langToggle" class="lang-toggle-btn" data-lang="en" data-i18n-title="nav.toggle_lang" title="Switch language" aria-label="Switch language">
       <span class="lang-opt" data-l="en">EN</span>
       <span class="lang-opt" data-l="th">TH</span>
     </button>
@@ -307,9 +307,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
-<script src="i18n.js"></script>
-<script src="map.js"></script>
-<script src="charts.js"></script>
+<script src="i18n.js?v=2"></script>
+<script src="map.js?v=2"></script>
+<script src="charts.js?v=2"></script>
 <script>
   I18N.init();
   document.getElementById('langToggle').addEventListener('click', () => I18N.toggle());

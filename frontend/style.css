@@ -236,30 +236,34 @@ html, body {
   gap: 0;
   cursor: pointer;
   font-family: inherit;
-  transition: background .15s, border-color .15s;
+  box-shadow: inset 0 0 0 0 var(--sep);
+  transition: background .15s, border-color .15s, box-shadow .15s;
 }
-.lang-toggle-btn:hover { background: var(--surface); }
+.lang-toggle-btn:hover { background: var(--surface); border-color: var(--sand-deep); }
 .lang-toggle-btn .lang-opt {
-  min-width: 24px;
-  height: 22px;
-  padding: 0 7px;
+  min-width: 22px;
+  height: 24px;
+  padding: 0 8px;
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: .08em;
   color: var(--t4);
+  background: transparent;
   border-radius: 999px;
-  transition: color .2s ease, background .2s ease;
+  transition: color .25s ease, background .25s ease, box-shadow .25s ease;
   pointer-events: none;
 }
 .lang-toggle-btn[data-lang="en"] .lang-opt[data-l="en"],
 .lang-toggle-btn[data-lang="th"] .lang-opt[data-l="th"] {
-  color: var(--white, #fff);
-  background: var(--sand-deep);
+  color: #ffffff !important;
+  background: var(--sand-deep) !important;
+  box-shadow: 0 1px 4px -1px rgba(138, 98, 32, .45);
 }
 body[data-theme="dark"] .lang-toggle-btn[data-lang="en"] .lang-opt[data-l="en"],
 body[data-theme="dark"] .lang-toggle-btn[data-lang="th"] .lang-opt[data-l="th"] {
-  color: #1d1d1f;
+  color: #1d1d1f !important;
+  box-shadow: 0 1px 6px -1px rgba(255, 159, 10, .55);
 }
 .theme-toggle-btn i { transition: transform .4s ease; }
 body[data-theme="dark"] .theme-toggle-btn i { transform: rotate(180deg); }
