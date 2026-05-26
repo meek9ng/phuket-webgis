@@ -101,6 +101,21 @@ async def get_cell_index():
     )
 
 
+@app.get("/api/img-tiles/{layer}/{z}/{x}/{y}.png")
+async def get_img_tile(layer: str, z: int, x: int, y: int):
+    # Restrict layer to the expected pattern to avoid path traversal.
+    if not layer.replace("_", "").isalnum():
+        raise HTTPException(status_code=400, detail="invalid layer")
+    path = f"{DATA_WEB}/raster_tiles/{layer}/{z}/{x}/{y}.png"
+    if not os.path.exists(path):
+        return Response(status_code=204)
+    return FileResponse(
+        path,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
 @app.get("/api/pois")
 async def get_pois():
     return FileResponse(

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phuket WebGIS — Land Use & Livability</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+
+<body>
+
+<!-- ── Loading overlay ─────────────────────────── -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div id="loadingText" data-i18n="loading.default">Loading…</div>
+</div>
+
+<!-- ── Hover tooltip ───────────────────────────── -->
+<div id="hoverTip">
+  <div class="ht-title"><i class="bi bi-pin-map-fill"></i> <span data-i18n="info.cell">Cell</span> <span id="htCellId">—</span></div>
+  <div class="ht-row"><span data-i18n="hover.livability">Livability</span><span id="htLiv">—</span></div>
+  <div class="ht-row ht-label-row"><span></span><span id="htLivLabel">—</span></div>
+  <div class="ht-row"><span data-i18n="hover.growth">Growth</span><span id="htGrowth">—</span></div>
+  <div class="ht-row"><span data-i18n="hover.pois">POIs</span><span id="htPoi">—</span></div>
+</div>
+
+<!-- ── Toast ───────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ── Map container ───────────────────────────── -->
+<div id="map"></div>
+
+<!-- ───────────────── LEFT PANEL ───────────────── -->
+<div id="panel">
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <h1><span class="logo-mark"></span>Phuket <em>WebGIS</em></h1>
+      <div class="panel-header-actions">
+        <button id="mapThemeToggle" class="theme-toggle-btn" data-i18n-title="nav.toggle_theme" title="Toggle light / dark theme">
+          <i class="bi bi-sun-fill"></i>
+        </button>
+        <a href="/" class="home-link" data-i18n-title="nav.back_home" title="Back to home">
+          <i class="bi bi-house-fill"></i>
+        </a>
+      </div>
+    </div>
+    <div class="panel-header-bottom">
+      <p data-i18n="panel.subtitle">Land use &amp; livability · 2018 / 2026</p>
+      <button id="langToggle" class="lang-toggle-btn" data-lang="en" data-i18n-title="nav.toggle_lang" title="Switch language" aria-label="Switch language">
+        <span class="lang-opt" data-l="en">EN</span>
+        <span class="lang-opt" data-l="th">TH</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="layers"><i class="bi bi-layers"></i> <span data-i18n="tab.layers">Layers</span></button>
+    <button class="tab-btn" data-tab="stats"><i class="bi bi-bar-chart-fill"></i> <span data-i18n="tab.stats">Stats</span></button>
+    <button class="tab-btn" data-tab="hotspots"><i class="bi bi-stars"></i> <span data-i18n="tab.hotspots">Hotspots</span></button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- ═══ TAB: LAYERS ═══ -->
+    <div class="tab-pane active" id="tab-layers">
+
+      <!-- Basemap -->
+      <div class="section">
+        <div class="section-title"><i class="bi bi-map"></i> <span data-i18n="section.basemap">Basemap</span></div>
+        <div class="basemap-grid">
+          <button class="bm-btn active" data-bm="cartoLight"><div class="bm-thumb bm-light"></div><span data-i18n="basemap.light">Light</span></button>
+          <button class="bm-btn" data-bm="cartoDark"><div class="bm-thumb bm-dark"></div><span data-i18n="basemap.dark">Dark</span></button>
+          <button class="bm-btn" data-bm="osm"><div class="bm-thumb bm-streets"></div><span data-i18n="basemap.streets">Streets</span></button>
+          <button class="bm-btn" data-bm="satellite"><div class="bm-thumb bm-sat"></div><span data-i18n="basemap.satellite">Satellite</span></button>
+        </div>
+      </div>
+
+      <!-- Year -->
+      <div class="section">
+        <div class="section-title"><i class="bi bi-calendar3"></i> <span data-i18n="section.year">Year</span></div>
+        <div class="year-chips">
+          <div class="year-chip" data-y="2018">2018</div>
+          <div class="year-chip" data-y="2019">2019</div>
+          <div class="year-chip" data-y="2020">2020</div>
+          <div class="year-chip" data-y="2021">2021</div>
+          <div class="year-chip active" data-y="2022">2022</div>
+          <div class="year-chip" data-y="2023">2023</div>
+          <div class="year-chip" data-y="2024">2024</div>
+          <div class="year-chip" data-y="2025">2025</div>
+          <div class="year-chip" data-y="2026">2026</div>
+        </div>
+        <div class="play-row">
+          <div>
+            <div class="year-big" id="yearLabel">2022</div>
+            <div class="year-sub" data-i18n="year.sub">Selected year</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Split Compare -->
+      <div class="section">
+        <div class="section-title"><i class="bi bi-layout-split"></i> <span data-i18n="section.split">Split Compare</span></div>
+        <button id="splitCompareToggle" class="compare-toggle-btn">
+          <i class="bi bi-arrows-expand"></i> <span data-i18n="split.toggle">Compare Two Years</span>
+        </button>
+        <div id="splitCompareOpts" style="display:none">
+          <div class="split-type-row">
+            <button class="split-type-btn active" data-type="truecolor" data-i18n="split.truecolor">True Color</button>
+            <button class="split-type-btn" data-type="classified" data-i18n="split.classified">Classified</button>
+          </div>
+          <span class="sub-label" data-i18n="split.years" style="margin-top:10px;display:block">Years</span>
+          <div class="split-years-ui">
+            <div class="split-year-side">
+              <div class="split-side-label" data-i18n="split.left">◀ Left</div>
+              <select id="splitLeftYear" class="split-year-sel"></select>
+            </div>
+            <div class="split-vs">↔</div>
+            <div class="split-year-side">
+              <div class="split-side-label" data-i18n="split.right">Right ▶</div>
+              <select id="splitRightYear" class="split-year-sel"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Layers -->
+      <div class="section">
+        <div class="section-title"><i class="bi bi-stack"></i> <span data-i18n="section.layers">Map Layers</span></div>
+
+        <div class="layer-row">
+          <label class="lt">
+            <input type="checkbox" id="layerTruecolor">
+            <div class="lt-track"><div class="lt-thumb"></div></div>
+            <div class="lt-label"><i class="bi bi-camera-fill"></i><span data-i18n="layer.truecolor">True Color Image</span></div>
+          </label>
+        </div>
+
+        <div class="layer-row">
+          <label class="lt">
+            <input type="checkbox" id="layerClassified">
+            <div class="lt-track"><div class="lt-thumb"></div></div>
+            <div class="lt-label"><i class="bi bi-palette-fill"></i><span data-i18n="layer.classified">Land Cover Classification</span></div>
+          </label>
+        </div>
+
+        <div class="sub-opts" id="imgOpts" style="display:none">
+          <span class="sub-label" data-i18n="layer.image_opacity">Image opacity</span>
+          <div class="opacity-row">
+            <input type="range" id="imgOpacity" min="0" max="100" value="85">
+            <span id="imgOpacityVal">85%</span>
+          </div>
+        </div>
+
+        <div class="layer-row">
+          <label class="lt">
+            <input type="checkbox" id="layerGrid">
+            <div class="lt-track"><div class="lt-thumb"></div></div>
+            <div class="lt-label"><i class="bi bi-grid-3x3"></i><span data-i18n="layer.grid">Analysis Grid (250 m)</span></div>
+          </label>
+        </div>
+        <div class="sub-opts" id="gridOpts" style="display:none">
+          <span class="sub-label" data-i18n="layer.color_by">Color by</span>
+          <select id="gridColorBy">
+            <option value="livability" data-i18n="colorby.livability">Livability Score</option>
+            <option value="growth_pct" data-i18n="colorby.growth">Built Area Growth (%)</option>
+            <option value="poi_density" data-i18n="colorby.poi_density">POI Density</option>
+            <option value="uhi_proxy" data-i18n="colorby.uhi">UHI Proxy</option>
+            <option value="ndvi_mean" data-i18n="colorby.ndvi">NDVI Mean</option>
+          </select>
+          <span class="sub-label" data-i18n="layer.opacity">Opacity</span>
+          <div class="opacity-row">
+            <input type="range" id="gridOpacity" min="0" max="100" value="70">
+            <span id="gridOpacityVal">70%</span>
+          </div>
+        </div>
+
+        <div class="layer-row">
+          <label class="lt">
+            <input type="checkbox" id="layerRoads" checked>
+            <div class="lt-track"><div class="lt-thumb"></div></div>
+            <div class="lt-label"><i class="bi bi-sign-turn-right-fill"></i><span data-i18n="layer.roads">Road Network</span></div>
+          </label>
+        </div>
+
+        <div class="layer-row">
+          <label class="lt">
+            <input type="checkbox" id="layerPois">
+            <div class="lt-track"><div class="lt-thumb"></div></div>
+            <div class="lt-label"><i class="bi bi-geo-alt-fill"></i><span data-i18n="layer.pois">Points of Interest</span></div>
+          </label>
+        </div>
+        <div class="sub-opts" id="poisOpts" style="display:none">
+          <span class="sub-label" data-i18n="layer.categories">Categories</span>
+          <div class="cat-chips">
+            <div class="cat-chip active" data-cat="medical">
+              <span class="cat-dot" style="background:#e74c3c"></span><span data-i18n="cat.medical">Medical</span>
+            </div>
+            <div class="cat-chip active" data-cat="recreation">
+              <span class="cat-dot" style="background:#27ae60"></span><span data-i18n="cat.recreation">Recreation</span>
+            </div>
+            <div class="cat-chip active" data-cat="living">
+              <span class="cat-dot" style="background:#3498db"></span><span data-i18n="cat.living">Living</span>
+            </div>
+            <div class="cat-chip active" data-cat="transport">
+              <span class="cat-dot" style="background:#f39c12"></span><span data-i18n="cat.transport">Transport</span>
+            </div>
+            <div class="cat-chip active" data-cat="education">
+              <span class="cat-dot" style="background:#9b59b6"></span><span data-i18n="cat.education">Education</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend (moved to floating overlay on map) -->
+    </div>
+
+    <!-- ═══ TAB: STATS ═══ -->
+    <div class="tab-pane" id="tab-stats">
+      <div class="section">
+        <div class="section-title"><i class="bi bi-bar-chart-fill"></i> <span data-i18n="stats.study_area">Study Area</span></div>
+        <div id="statsPanel"><span style="font-size:12px;color:var(--ink-faint)" data-i18n="loading.default">Loading…</span></div>
+      </div>
+      <div class="section">
+        <div id="chartLandcover"></div>
+        <div id="chartBuilt"></div>
+      </div>
+      <div class="section">
+        <div id="chartPoi"></div>
+        <div id="chartLiv"></div>
+        <div id="chartAccess"></div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: HOTSPOTS ═══ -->
+    <div class="tab-pane" id="tab-hotspots">
+      <div class="section">
+        <div class="section-title"><i class="bi bi-stars"></i> <span data-i18n="hotspots.top_cells">Top Cells</span></div>
+        <div style="font-size:11px;color:var(--ink-faint);margin-bottom:8px" data-i18n="hotspots.hint">
+          Click any cell to fly to its location and view details.
+        </div>
+        <div class="hotspot-tabs">
+          <button class="hs-tab active" data-group="livability_high"><i class="bi bi-trophy-fill"></i> <span data-i18n="hotspots.best">Best</span></button>
+          <button class="hs-tab" data-group="growth_high"><i class="bi bi-graph-up-arrow"></i> <span data-i18n="hotspots.growth">Growth</span></button>
+          <button class="hs-tab" data-group="risk"><i class="bi bi-exclamation-triangle-fill"></i> <span data-i18n="hotspots.risk">Risk</span></button>
+        </div>
+        <div class="hotspot-list" id="hotspotList">
+          <div style="font-size:12px;color:var(--ink-faint);text-align:center;padding:14px" data-i18n="loading.default">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button id="togglePanel" title="Toggle panel"><i class="bi bi-layout-sidebar-inset"></i></button>
+
+<!-- ───────────────── FLOATING LEGEND ───────────────── -->
+<div id="legendFloat">
+  <div class="legend-float-header">
+    <span class="legend-float-title"><i class="bi bi-list-columns-reverse"></i> <span data-i18n="legend.title">Legend</span></span>
+    <button id="legendFloatToggle" title="Collapse legend"><i class="bi bi-chevron-down"></i></button>
+  </div>
+  <div id="legend"><span class="legend-empty" data-i18n="legend.empty">Enable layers to see legend.</span></div>
+</div>
+
+<!-- ───────────────── RIGHT INFO PANEL ───────────────── -->
+<div id="infoPanel">
+  <div class="info-header">
+    <div class="info-header-title"><i class="bi bi-info-circle-fill"></i> <span data-i18n="info.cell_details">Cell Details</span></div>
+    <button id="infoPanelClose" title="Close"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="infoPanelContent">
+    <div class="info-section" style="color:var(--ink-faint);font-size:12px;text-align:center;padding:24px 14px">
+      <i class="bi bi-cursor-fill" style="font-size:24px;color:var(--blue-400);display:block;margin-bottom:6px"></i>
+      <span data-i18n="info.empty_hint">Enable the analysis grid layer and click a cell to view detailed statistics.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Split slider overlay ──────────────────────────── -->
+<div id="splitSlider">
+  <div id="splitLine"></div>
+  <div id="splitHandle"><i class="bi bi-grip-vertical"></i></div>
+  <div class="split-badge left" id="splitBadgeLeft">2018</div>
+  <div class="split-badge right" id="splitBadgeRight">2026</div>
+</div>
+
+<!-- ── Pin bar ───────────────────────────────────────── -->
+<div id="pinBar">
+  <div id="pinBarCells"></div>
+  <button id="pinCompareBtn"><i class="bi bi-columns-gap"></i> <span data-i18n="info.compare">Compare</span></button>
+  <button id="pinClearBtn"><i class="bi bi-x-lg"></i></button>
+</div>
+
+<!-- ── Compare modal ─────────────────────────────────── -->
+<div id="compareModal">
+  <div class="compare-modal-inner">
+    <div class="compare-modal-header">
+      <div class="compare-modal-title"><i class="bi bi-columns-gap"></i> <span data-i18n="info.compare_cells">Compare Cells</span></div>
+      <button id="compareModalClose"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div id="compareModalContent"></div>
+  </div>
+</div>
+
+<!-- ── Scripts ────────────────────────────────────────── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
+<script src="i18n.js?v=4"></script>
+<script src="map.js?v=4"></script>
+<script src="charts.js?v=4"></script>
+<script>
+  I18N.init();
+  document.getElementById('langToggle').addEventListener('click', () => I18N.toggle());
+
+  initMap();
+  bindUI();
+  buildLegend();
+  loadAllData();
+  loadRoads().then(() => {
+    if (App.layers.roads.layer) App.layers.roads.layer.addTo(App.map);
+  });
+
+  // Re-render legend & info panel on language change so dynamic UI follows
+  document.addEventListener('langchange', () => {
+    buildLegend();
+    if (App.currentCellProps) showInfoPanel(App.currentCellProps);
+    if (App.data && App.data.hotspots) renderHotspots(App.data.hotspots);
+    if (App.data && App.data.summary) renderStatCards(App.data.summary);
+  });
+
+  // ── Theme toggle ─────────────────────────────────────
+  (function () {
+    const body = document.body;
+    const btn  = document.getElementById('mapThemeToggle');
+    if (!btn) return;
+    const icon = btn.querySelector('i');
+
+    function swapBasemap(name) {
+      if (!App.basemaps || !App.basemaps[name]) return;
+      if (App.currentBM === name) return;
+      App.map.removeLayer(App.basemaps[App.currentBM]);
+      App.basemaps[name].addTo(App.map);
+      App.currentBM = name;
+      document.querySelectorAll('.bm-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.bm === name));
+    }
+
+    function apply(theme) {
+      body.dataset.theme = theme;
+      icon.className = (theme === 'dark') ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+      if (theme === 'dark' && App.currentBM === 'cartoLight') swapBasemap('cartoDark');
+      if (theme === 'light' && App.currentBM === 'cartoDark') swapBasemap('cartoLight');
+      localStorage.setItem('phuket-theme', theme);
+    }
+
+    let initial = localStorage.getItem('phuket-theme');
+    if (!initial && window.matchMedia('(prefers-color-scheme: dark)').matches) initial = 'dark';
+    apply(initial || 'light');
+
+    btn.addEventListener('click', () => {
+      apply(body.dataset.theme === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+</body>
+</html>

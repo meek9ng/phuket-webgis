@@ -2,43 +2,25 @@
    Phuket WebGIS — Map module (layers, state, interactions)
    =================================================================== */
 
-// ─── Transparent image overlay (strips black NoData pixels) ───
-const TransparentImageLayer = L.ImageOverlay.extend({
-  _initImage() {
-    const canvas = this._image = L.DomUtil.create('canvas',
-      'leaflet-image-layer ' + (this._zoomAnimated ? 'leaflet-zoom-animated' : 'leaflet-zoom-hide'));
-    if (this.options.opacity < 1) this._updateOpacity();
-    canvas.onselectstart = L.Util.falseFn;
-    canvas.onmousemove = L.Util.falseFn;
-
-    const srcImg = new Image();
-    srcImg.crossOrigin = '';
-    srcImg.onload = () => {
-      canvas.width  = srcImg.naturalWidth;
-      canvas.height = srcImg.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(srcImg, 0, 0);
-      try {
-        const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const d  = id.data;
-        const bgR = d[0], bgG = d[1], bgB = d[2];
-        const TOL = 10;
-        for (let i = 0; i < d.length; i += 4) {
-          if (Math.abs(d[i] - bgR) < TOL &&
-              Math.abs(d[i+1] - bgG) < TOL &&
-              Math.abs(d[i+2] - bgB) < TOL) d[i+3] = 0;
-        }
-        ctx.putImageData(id, 0, 0);
-      } catch (e) { /* CORS fallback — keep image as-is */ }
-      this.fire('load');
-    };
-    srcImg.onerror = () => this.fire('error');
-    srcImg.src = this._url;
-  }
-});
-
 // ─── Constants ────────────────────────────────────────────────
+// Phuket Sentinel-2 PNG extent (used as L.tileLayer bounds option)
 const IMG_BOUNDS = [[7.478686, 98.257633], [8.200237, 98.483215]];
+
+// Shared options for the truecolor / classified raster tile layers.
+function imgTileOpts(opacity, pane) {
+  const opts = {
+    opacity,
+    bounds: IMG_BOUNDS,
+    minZoom: 8,
+    maxZoom: 18,
+    minNativeZoom: 10,
+    maxNativeZoom: 13,
+    tileSize: 256,
+    crossOrigin: true,
+  };
+  if (pane) opts.pane = pane;
+  return opts;
+}
 
 const POI_COLORS = {
   medical:    '#e74c3c',
@@ -452,17 +434,15 @@ function refreshImageOverlays() {
   const clOn = document.getElementById('layerClassified').checked;
 
   if (tcOn) {
-    App.layers.truecolor.layer = new TransparentImageLayer(
-      `/data/09_web/img/truecolor_${App.currentYear}.png`,
-      IMG_BOUNDS,
-      { opacity: App.imgOpacity, interactive: false }
+    App.layers.truecolor.layer = L.tileLayer(
+      `/api/img-tiles/truecolor_${App.currentYear}/{z}/{x}/{y}.png`,
+      imgTileOpts(App.imgOpacity)
     ).addTo(App.map);
   }
   if (clOn) {
-    App.layers.classified.layer = new TransparentImageLayer(
-      `/data/09_web/img/classified_${App.currentYear}.png`,
-      IMG_BOUNDS,
-      { opacity: App.imgOpacity, interactive: false }
+    App.layers.classified.layer = L.tileLayer(
+      `/api/img-tiles/classified_${App.currentYear}/{z}/{x}/{y}.png`,
+      imgTileOpts(App.imgOpacity)
     ).addTo(App.map);
   }
 }
@@ -935,14 +915,14 @@ function buildSplitLayers() {
 
   const pfx = App.splitCompare.type === 'classified' ? 'classified' : 'truecolor';
 
-  App.splitCompare.leftLayer = new TransparentImageLayer(
-    `/data/09_web/img/${pfx}_${App.splitCompare.leftYear}.png`,
-    IMG_BOUNDS, { opacity: App.imgOpacity, interactive: false, pane: 'splitLeft' }
+  App.splitCompare.leftLayer = L.tileLayer(
+    `/api/img-tiles/${pfx}_${App.splitCompare.leftYear}/{z}/{x}/{y}.png`,
+    imgTileOpts(App.imgOpacity, 'splitLeft')
   ).addTo(App.map);
 
-  App.splitCompare.rightLayer = new TransparentImageLayer(
-    `/data/09_web/img/${pfx}_${App.splitCompare.rightYear}.png`,
-    IMG_BOUNDS, { opacity: App.imgOpacity, interactive: false, pane: 'splitRight' }
+  App.splitCompare.rightLayer = L.tileLayer(
+    `/api/img-tiles/${pfx}_${App.splitCompare.rightYear}/{z}/{x}/{y}.png`,
+    imgTileOpts(App.imgOpacity, 'splitRight')
   ).addTo(App.map);
 
   document.getElementById('splitBadgeLeft').textContent  = App.splitCompare.leftYear;
