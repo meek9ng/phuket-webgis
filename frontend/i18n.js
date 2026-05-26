@@ -131,8 +131,7 @@ const I18N_DICT = {
     'basemap.satellite': 'Satellite',
 
     'section.year': 'Year',
-    'year.tooltip': 'Play animation',
-    'year.sub': 'Selected year · click play to animate',
+    'year.sub': 'Selected year',
 
     'section.split': 'Split Compare',
     'split.toggle': 'Compare Two Years',
@@ -339,8 +338,7 @@ const I18N_DICT = {
     'basemap.satellite': 'ดาวเทียม',
 
     'section.year': 'ปี',
-    'year.tooltip': 'เล่นแอนิเมชัน',
-    'year.sub': 'ปีที่เลือก · กดเล่นเพื่อดูแอนิเมชัน',
+    'year.sub': 'ปีที่เลือก',
 
     'section.split': 'เทียบแบบแยก',
     'split.toggle': 'เทียบสองปี',

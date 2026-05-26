@@ -156,7 +156,6 @@ const App = {
   imgOpacity: 0.85,
   gridOpacity: 0.70,
   gridColorBy: 'livability',
-  playTimer: null,
   selectedCellId: null,
   currentCellProps: null,
   highlightLayer: null,
@@ -729,28 +728,6 @@ function bindUI() {
   // Year chips
   document.querySelectorAll('.year-chip').forEach(chip => {
     chip.addEventListener('click', () => setYear(+chip.dataset.y));
-  });
-
-  // Play / pause animation
-  document.getElementById('playBtn').addEventListener('click', () => {
-    const btn = document.getElementById('playBtn');
-    if (App.playTimer) {
-      clearInterval(App.playTimer);
-      App.playTimer = null;
-      btn.innerHTML = '<i class="bi bi-play-fill"></i>';
-    } else {
-      btn.innerHTML = '<i class="bi bi-pause-fill"></i>';
-      let idx = YEARS.indexOf(App.currentYear);
-      App.playTimer = setInterval(() => {
-        idx = (idx + 1) % YEARS.length;
-        setYear(YEARS[idx]);
-        if (idx === YEARS.length - 1) {
-          clearInterval(App.playTimer);
-          App.playTimer = null;
-          btn.innerHTML = '<i class="bi bi-play-fill"></i>';
-        }
-      }, 1100);
-    }
   });
 
   // Image opacity

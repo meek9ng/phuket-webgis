@@ -406,19 +406,6 @@ body[data-theme="dark"] .tabs { background: rgba(255,255,255,.04); }
   padding-top: 12px;
   border-top: .5px solid var(--sep-soft);
 }
-#playBtn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: var(--t1);
-  border: none;
-  color: var(--surface);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-  transition: opacity .15s, transform .15s;
-}
-#playBtn:hover { opacity: .82; transform: scale(1.06); }
 .year-big {
   font-size: 26px;
   font-weight: 300;
